@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Viewer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        iframe {
-            width: 100%;
-            height: 400px;
-            border: 1px solid #ccc;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Extractor</title>
 </head>
 <body>
-    <h1>Website Viewer</h1>
-    <label for="urlInput">Enter URL:</label>
-    <input type="text" id="urlInput" placeholder="https://example.com">
-    <button onclick="loadWebsite()">Load Website</button>
-    <iframe id="websiteFrame" src="" frameborder="0"></iframe>
+  <h1>Video Extractor</h1>
+  <input type="text" id="urlInput" placeholder="Enter webpage URL">
+  <button onclick="extractVideos()">Extract Videos</button>
+  <ul id="videoList"></ul>
 
-    <script>
-        function loadWebsite() {
-            var urlInput = document.getElementById('urlInput').value;
-            var websiteFrame = document.getElementById('websiteFrame');
-            websiteFrame.src = urlInput;
-        }
-    </script>
+  <script>
+    async function extractVideos() {
+      const url = document.getElementById('urlInput').value;
+      try {
+        const response = await fetch(url);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Extract video links with MP4 and MKV formats
+        const videoElements = doc.querySelectorAll('video source[src$=".mp4"], video source[src$=".mkv"]');
+
+        const videoList = document.getElementById('videoList');
+        videoList.innerHTML = ''; // Clear previous results
+
+        videoElements.forEach(source => {
+          const videoLink = source.getAttribute('src');
+          const listItem = document.createElement('li');
+          listItem.textContent = videoLink;
+          videoList.appendChild(listItem);
+        });
+      } catch (error) {
+        console.error('Error fetching or parsing the webpage:', error);
+      }
+    }
+  </script>
 </body>
 </html>
